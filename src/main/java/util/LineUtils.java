@@ -8,29 +8,17 @@ import org.newdawn.slick.geom.Point;
 public class LineUtils {
 
   private static double AngleBetweenLines(Line ln1, Line ln2) {
-    double angle1 = Math
-        .toDegrees(Math.atan2(ln1.getY2() - ln1.getY1(), ln1.getX1() - ln1.getX2()));
-    double angle2 = Math
-        .toDegrees(Math.atan2(ln2.getY2() - ln2.getY1(), ln2.getX1() - ln2.getX2()));
+    double ln1Dx = ln1.getX2() - ln1.getX1();
+    double ln1Dy = ln1.getY2() - ln1.getY1();
+    double ln2Dx = ln2.getX2() - ln2.getX1();
+    double ln2Dy = ln2.getY2() - ln2.getY1();
+    double dotProduct = ln1Dx * ln2Dx + ln1Dy * ln2Dy;
+    double ln1Length = Math.sqrt(ln1Dx*ln1Dx + ln1Dy*ln1Dy);
+    double ln2Length = Math.sqrt(ln2Dx*ln2Dx + ln2Dy*ln2Dy);
+    double cosTheta = dotProduct / (ln1Length * ln2Length);
+    double desiredAngle = Math.acos(cosTheta);
 
-    // Fix this somehow!
-    double desiredAngle = Math.abs(angle1 - angle2);
-    if (desiredAngle < 0) {
-      desiredAngle += 180;
-    }
-    if (desiredAngle > 180) {
-      desiredAngle -= 180;
-    }
     return desiredAngle;
-  }
-
-  private static double AngleBetweenPoints(Point main, Point a, Point b) {
-    Line mainA = new Line(main.getX(), main.getY(), a.getX(), a.getY());
-    Line mainB = new Line(main.getX(), main.getY(), b.getX(), b.getY());
-    double angle1 = Math.atan2(mainA.getY1() - mainA.getY2(), mainA.getX1() - mainA.getX2());
-    double angle2 = Math.atan2(mainB.getY1() - mainB.getY2(), mainB.getX1() - mainB.getX2());
-    double desiredAngle = angle1 - angle2;
-    return Math.abs(desiredAngle);
   }
 
   public static List<Line> GetLargestAngleLines(List<Line> lines) {
@@ -68,20 +56,5 @@ public class LineUtils {
       biggestAngles.add(lines.get(3));
       return biggestAngles;
     }
-  }
-
-  public static List<Point> GetLargestAnglePoints(Point main, List<Point> allPoints) {
-    double biggestAngle = 0;
-    List<Point> biggestAnglePoints = new ArrayList<>();
-    for (int i = 0; i < allPoints.size(); i += 2) {
-      if (LineUtils.AngleBetweenPoints(main, allPoints.get(i), allPoints.get(i + 1))
-          > biggestAngle) {
-        biggestAngle = LineUtils.AngleBetweenPoints(main, allPoints.get(i), allPoints.get(i + 1));
-        biggestAnglePoints.clear();
-        biggestAnglePoints.add(allPoints.get(i));
-        biggestAnglePoints.add(allPoints.get(i + 1));
-      }
-    }
-    return biggestAnglePoints;
   }
 }
