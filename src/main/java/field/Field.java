@@ -1,25 +1,25 @@
 package field;
 
 import config.Config;
-import entity.Enemy;
-import entity.Goal;
 import entity.Block;
 import entity.Character;
-import entity.EmptyBlock;
 import entity.CharacterBlock;
+import entity.EmptyBlock;
+import entity.Enemy;
+import entity.Goal;
 import entity.Wall;
 import enums.Direction;
 import java.util.ArrayList;
 import java.util.List;
 import org.newdawn.slick.geom.Line;
 import org.newdawn.slick.geom.Polygon;
+import util.DistanceCalculator;
 
 
 public class Field {
 
   public Block[][] fieldBase;
   public Character character;
-  private Line crosshair;
   private List<Line> lines;
   public final List<Polygon> polygons;
   public Goal goal;
@@ -28,7 +28,6 @@ public class Field {
   public Field() {
     this.fieldBase = this.GenerateEmptyField();
     this.character = new Character();
-    this.crosshair = new Line(0,0,0,0);
     this.lines = new ArrayList<>();
     this.polygons = new ArrayList<>();
     this.enemies = new ArrayList<>();
@@ -54,6 +53,17 @@ public class Field {
       }
     }
     return field;
+  }
+
+  public float[][] GetBlockDistances() {
+    float[][] blockDistances = new float[Math.round(Config.HEIGHT)][Math.round(Config.WIDTH)];
+    for (int j = 0; j < this.fieldBase.length; j++) {
+      for (int i = 0; i < this.fieldBase[j].length; i++) {
+        blockDistances[j][i] = DistanceCalculator
+            .Euclidean(character.getCharacterHead(), this.fieldBase[j][i]);
+      }
+    }
+    return blockDistances;
   }
 
   private void SpawnRandomEnemies() {

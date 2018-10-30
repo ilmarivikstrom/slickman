@@ -10,7 +10,8 @@ public class Character {
   private Direction previousDirection;
 
   public Character() {
-    this.characterHead = new CharacterBlock(Config.INITIAL_CHARACTER_POSX, Config.INITIAL_CHARACTER_POSY);
+    this.characterHead = new CharacterBlock(Config.INITIAL_CHARACTER_POSX,
+        Config.INITIAL_CHARACTER_POSY);
     this.direction = Direction.E;
     this.previousDirection = Direction.E;
   }

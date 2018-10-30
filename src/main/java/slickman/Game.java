@@ -47,7 +47,7 @@ class Game extends BasicGame {
 
   private Game() {
     super("SlickMan!");
-    Config config = new Config();
+    new Config();
     field = new Field();
     this.inEditMode = false;
   }
@@ -60,7 +60,8 @@ class Game extends BasicGame {
     try {
       AppGameContainer appgc;
       appgc = new AppGameContainer(new Game());
-      appgc.setDisplayMode(Math.round(Config.WIDTH*Config.TILE_SIZE), Math.round(Config.HEIGHT*Config.TILE_SIZE), false);
+      appgc.setDisplayMode(Math.round(Config.WIDTH * Config.TILE_SIZE),
+          Math.round(Config.HEIGHT * Config.TILE_SIZE), false);
       appgc.start();
     } catch (SlickException ex) {
       Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
@@ -145,17 +146,18 @@ class Game extends BasicGame {
         // Get lines from corners to the character.
         List<Line> lines = new ArrayList<>();
         for (Point point : points) {
-          lines.add(new Line(this.field.character.getCharacterHead().getCenterX(), this.field.character.getCharacterHead().getCenterY(), point.getX(), point.getY()));
+          lines.add(new Line(this.field.character.getCharacterHead().getCenterX(),
+              this.field.character.getCharacterHead().getCenterY(), point.getX(), point.getY()));
         }
 
         // Find the largest angles and store them for drawing.
         List<Line> largestAngleLines = new ArrayList<>();
         List<Line> temp = new ArrayList<>();
-        for (int index = 0; index < lines.size(); index+=4) {
+        for (int index = 0; index < lines.size(); index += 4) {
           temp.add(lines.get(index));
-          temp.add(lines.get(index+1));
-          temp.add(lines.get(index+2));
-          temp.add(lines.get(index+3));
+          temp.add(lines.get(index + 1));
+          temp.add(lines.get(index + 2));
+          temp.add(lines.get(index + 3));
           largestAngleLines.addAll(LineUtils.GetLargestAngleLines(temp));
           temp.clear();
         }
@@ -163,19 +165,23 @@ class Game extends BasicGame {
         List<Line> shadeLines = new ArrayList<>();
         for (Line line : largestAngleLines) {
           float dx = 80 * (line.getMaxX() - line.getMinX());
-          float dy = 80 * (line.getMaxY() - line.getMinY() );
-          if (this.field.getCharacter().getCharacterHead().getCenterX() < line.getEnd().x && this.field.getCharacter().getCharacterHead().getCenterY() > line.getEnd().y) {
+          float dy = 80 * (line.getMaxY() - line.getMinY());
+          if (this.field.getCharacter().getCharacterHead().getCenterX() < line.getEnd().x
+              && this.field.getCharacter().getCharacterHead().getCenterY() > line.getEnd().y) {
             dx = -dx;
             dy = -dy;
           }
-          if (this.field.getCharacter().getCharacterHead().getCenterX() > line.getEnd().x && this.field.getCharacter().getCharacterHead().getCenterY() > line.getEnd().y) {
+          if (this.field.getCharacter().getCharacterHead().getCenterX() > line.getEnd().x
+              && this.field.getCharacter().getCharacterHead().getCenterY() > line.getEnd().y) {
             dx = -dx;
             dy = -dy;
           }
-          if (this.field.getCharacter().getCharacterHead().getCenterX() > line.getEnd().x && this.field.getCharacter().getCharacterHead().getCenterY() < line.getEnd().y) {
+          if (this.field.getCharacter().getCharacterHead().getCenterX() > line.getEnd().x
+              && this.field.getCharacter().getCharacterHead().getCenterY() < line.getEnd().y) {
             dx = -dx;
           }
-          if (this.field.getCharacter().getCharacterHead().getCenterX() < line.getEnd().x && this.field.getCharacter().getCharacterHead().getCenterY() > line.getEnd().y) {
+          if (this.field.getCharacter().getCharacterHead().getCenterX() < line.getEnd().x
+              && this.field.getCharacter().getCharacterHead().getCenterY() > line.getEnd().y) {
             dx = -dx;
           }
           Line newLine = new Line(line.getEnd().x, line.getEnd().y, dx, dy, true);
@@ -183,12 +189,13 @@ class Game extends BasicGame {
         }
 
         this.field.polygons.clear();
-        for (int i1 = 0; i1 < shadeLines.size(); i1+=2) {
+        for (int i1 = 0; i1 < shadeLines.size(); i1 += 2) {
           Polygon polygon = new Polygon();
           polygon.addPoint(shadeLines.get(i1).getStart().x, shadeLines.get(i1).getStart().y);
           polygon.addPoint(shadeLines.get(i1).getEnd().x, shadeLines.get(i1).getEnd().y);
-          polygon.addPoint(shadeLines.get(i1+1).getEnd().x, shadeLines.get(i1+1).getEnd().y);
-          polygon.addPoint(shadeLines.get(i1+1).getStart().x, shadeLines.get(i1+1).getStart().y);
+          polygon.addPoint(shadeLines.get(i1 + 1).getEnd().x, shadeLines.get(i1 + 1).getEnd().y);
+          polygon
+              .addPoint(shadeLines.get(i1 + 1).getStart().x, shadeLines.get(i1 + 1).getStart().y);
           this.field.polygons.add(polygon);
         }
 
@@ -218,11 +225,39 @@ class Game extends BasicGame {
   @Override
   public void render(GameContainer gc, Graphics g) {
     // Draw white background
-    g.setBackground(new Color(255,255,255,255));
+    g.setBackground(new Color(255, 255, 255, 255));
 
-    // Draw objects that should be in the shadow.
+    // Dark background.
+    // Draw the field and walls.
+    for (Block[] blockRow : field.fieldBase) {
+      for (Block block : blockRow) {
+        g.setColor(Config.EMPTY_COLOR);
+        g.fill(block);
+        g.setColor(Config.GLOBAL_LINE_COLOR);
+        g.draw(block);
+      }
+    }
+
+    // Walls and obstacles.
+    for (Block[] blockRow : field.fieldBase) {
+      for (Block block : blockRow) {
+        if (block.getBlockType() == BlockType.OBSTACLE || block.getBlockType() == BlockType.WALL) {
+          g.setColor(block.getFillColor());
+          g.fill(block);
+          g.setColor(Config.GLOBAL_LINE_COLOR);
+          g.draw(block);
+        }
+      }
+    }
+
     // Goal.
-    g.setColor(this.field.goal.getFillColor());
+    Color origColor = this.field.goal.getFillColor();
+    Color newColor = new Color(origColor.r, origColor.g, origColor.b,
+        origColor.a - (float) 1.75 * origColor.a * (
+            DistanceCalculator.Euclidean(this.field.character.getCharacterHead(), this.field.goal)
+                / (Config.TILE_SIZE * Config.WIDTH)));
+
+    g.setColor(newColor);
     g.fill(this.field.goal);
     g.setColor(Config.GLOBAL_LINE_COLOR);
     g.draw(this.field.goal);
@@ -233,15 +268,35 @@ class Game extends BasicGame {
     g.draw(this.field.character.getCharacterHead());
     // Enemies
     for (Enemy enemy : this.field.enemies) {
-      g.setColor(enemy.getEnemyHead().getFillColor());
+      origColor = enemy.getEnemyHead().getFillColor();
+      newColor = new Color(origColor.r, origColor.g, origColor.b,
+          origColor.a - (float) 1.75 * origColor.a * (DistanceCalculator
+              .Euclidean(this.field.character.getCharacterHead(), enemy.getEnemyHead()) / (
+              Config.TILE_SIZE * Config.WIDTH)));
+      g.setColor(newColor);
       g.fill(enemy.getEnemyHead());
       g.setColor(Config.GLOBAL_LINE_COLOR);
       g.draw(enemy.getEnemyHead());
     }
 
+    // Draw light.
+    float[][] blockDistances = this.field.GetBlockDistances();
+    for (int j = 0; j < blockDistances.length; j++) {
+      for (int i = 0; i < blockDistances[j].length; i++) {
+        if (this.field.fieldBase[j][i].getBlockType() == BlockType.EMPTY) {
+          origColor = Config.EMPTY_BRIGHT_COLOR;
+          newColor = new Color(origColor.r, origColor.g, origColor.b,
+              origColor.a - (float) 1.75 * origColor.a * (blockDistances[j][i] / (Config.TILE_SIZE
+                  * Config.WIDTH)));
+          g.setColor(newColor);
+          g.fill(this.field.fieldBase[j][i]);
+        }
+      }
+    }
+
     // Draw visibility polygons.
     if (!this.inEditMode) {
-      g.setColor(Config.CONE_COLOR);
+      g.setColor(Config.EMPTY_COLOR);
       for (Polygon polygon : this.field.polygons) {
         g.fill(polygon);
       }
@@ -250,15 +305,13 @@ class Game extends BasicGame {
     // Draw the field and walls.
     for (Block[] blockRow : field.fieldBase) {
       for (Block block : blockRow) {
-        if (block.getBlockType() == BlockType.GOAL || block.getBlockType() == BlockType.ENEMY || block.getBlockType() == BlockType.CHARACTER) {
-          g.setColor(Config.EMPTY_COLOR);
-          g.fill(block);
-          g.setColor(block.getLineColor());
-          g.draw(block);
-        } else {
+        if (block.getBlockType() == BlockType.OBSTACLE || block.getBlockType() == BlockType.WALL) {
           g.setColor(block.getFillColor());
           g.fill(block);
-          g.setColor(block.getLineColor());
+          g.setColor(Config.GLOBAL_LINE_COLOR);
+          g.draw(block);
+        } else if (block.getBlockType() == BlockType.EMPTY) {
+          g.setColor(Config.GLOBAL_LINE_COLOR);
           g.draw(block);
         }
       }
@@ -279,9 +332,11 @@ class Game extends BasicGame {
     pauseFont.drawString(20, Config.TILE_SIZE * 2,
         "You are in Edit Mode! Try drawing obstacles with the mouse!", Color.white);
         */
-    pauseFont.drawString(Config.WIDTH*Config.TILE_SIZE/2 - pauseFont.getWidth("EDIT MODE")/2, Config.TILE_SIZE,
+    pauseFont.drawString(Config.WIDTH * Config.TILE_SIZE / 2 - pauseFont.getWidth("EDIT MODE") / 2,
+        Config.TILE_SIZE,
         "EDIT MODE", Color.white);
-    pauseFont.drawString(Config.WIDTH*Config.TILE_SIZE/2 - pauseFont.getWidth("Try drawing obstacles with the mouse!")/2, Config.TILE_SIZE * 2,
+    pauseFont.drawString(Config.WIDTH * Config.TILE_SIZE / 2
+            - pauseFont.getWidth("Try drawing obstacles with the mouse!") / 2, Config.TILE_SIZE * 2,
         "Try drawing obstacles with the mouse!", Color.white);
   }
 

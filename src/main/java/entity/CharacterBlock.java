@@ -12,6 +12,6 @@ public class CharacterBlock extends Block {
         BlockType.CHARACTER,
         Config.CHARACTER_COLOR,
         true
-        );
+    );
   }
 }
