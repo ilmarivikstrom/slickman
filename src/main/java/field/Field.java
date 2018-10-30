@@ -28,6 +28,7 @@ public class Field {
   public Field() {
     this.fieldBase = this.GenerateEmptyField();
     this.character = new Character();
+    this.fieldBase[(int)this.character.getCharacterHead().getBlockX()][(int)this.character.getCharacterHead().getBlockY()] = this.character.getCharacterHead();
     this.lines = new ArrayList<>();
     this.polygons = new ArrayList<>();
     this.enemies = new ArrayList<>();
@@ -67,14 +68,20 @@ public class Field {
   }
 
   private void SpawnRandomEnemies() {
-    Enemy enemy = new Enemy(5.f, 5.f);
+    Enemy enemy = new Enemy(8.f, 12.f);
     this.enemies.add(enemy);
-    this.fieldBase[5][5] = enemy.getEnemyHead();
+    this.fieldBase[12][8] = enemy.getEnemyHead();
   }
 
   private void SpawnRandomGoal() {
     this.goal = new Goal(8.f, 8.f);
     this.fieldBase[8][8] = this.goal;
+  }
+
+  public void MoveCharacter(Direction newDirection) {
+    this.fieldBase[(int)this.character.getCharacterHead().getBlockY()][(int)this.character.getCharacterHead().getBlockX()] = new EmptyBlock(this.character.getCharacterHead().getBlockX(), this.character.getCharacterHead().getBlockY());
+    this.character.Move(newDirection);
+    this.fieldBase[(int)this.character.getCharacterHead().getBlockY()][(int)this.character.getCharacterHead().getBlockX()] = this.character.getCharacterHead();
   }
 
   public boolean CheckCollision(Direction newDirection) {

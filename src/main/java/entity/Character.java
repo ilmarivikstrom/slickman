@@ -8,12 +8,14 @@ public class Character {
   private CharacterBlock characterHead;
   private Direction direction;
   private Direction previousDirection;
+  private boolean lightIsOn;
 
   public Character() {
     this.characterHead = new CharacterBlock(Config.INITIAL_CHARACTER_POSX,
         Config.INITIAL_CHARACTER_POSY);
     this.direction = Direction.E;
     this.previousDirection = Direction.E;
+    this.lightIsOn = true;
   }
 
   public void Move() {
@@ -65,5 +67,13 @@ public class Character {
 
   public void setCharacterHead(CharacterBlock characterHead) {
     this.characterHead = characterHead;
+  }
+
+  public boolean isLightIsOn() {
+    return lightIsOn;
+  }
+
+  public void setLightIsOn(boolean lightIsOn) {
+    this.lightIsOn = lightIsOn;
   }
 }

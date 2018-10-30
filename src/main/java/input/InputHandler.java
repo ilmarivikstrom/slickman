@@ -40,6 +40,9 @@ public class InputHandler {
     if (input.isKeyPressed(Keyboard.KEY_L)) {
       return UserKeyboardInput.KEY_L;
     }
+    if (input.isKeyPressed(Keyboard.KEY_F)) {
+      return UserKeyboardInput.KEY_F;
+    }
 
     return UserKeyboardInput.NONE;
   }
