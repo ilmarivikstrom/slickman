@@ -28,7 +28,7 @@ public class DistanceCalculator {
     return Float.toString(Euclidean(xStart, yStart, xEnd, yEnd));
   }
 
-  private static float Euclidean(Block startBlock, Block endBlock) {
+  public static float Euclidean(Block startBlock, Block endBlock) {
     return Euclidean(startBlock.getX(), startBlock.getY(), endBlock.getX(), endBlock.getY());
   }
 

@@ -41,7 +41,7 @@ public class SaveGame {
     BufferedReader buf = new BufferedReader(new InputStreamReader(is));
     String line = buf.readLine();
     StringBuilder sb = new StringBuilder();
-    while(line != null) {
+    while (line != null) {
       sb.append(line).append("\n");
       line = buf.readLine();
     }

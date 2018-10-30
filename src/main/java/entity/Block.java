@@ -27,8 +27,8 @@ public abstract class Block extends Rectangle {
   public List<Point> getCornersAsPoints() {
     List<Point> corners = new ArrayList<>();
     float[] points = this.getPoints();
-    for (int i = 0; i < points.length; i+=2) {
-      corners.add(new Point(points[i], points[i+1]));
+    for (int i = 0; i < points.length; i += 2) {
+      corners.add(new Point(points[i], points[i + 1]));
     }
     return corners;
   }

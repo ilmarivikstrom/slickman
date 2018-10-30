@@ -21,10 +21,10 @@ public class Config {
   public static Color CHARACTER_COLOR;
   public static Color EMPTY_COLOR;
   public static Color EMPTY_BRIGHT_COLOR;
+  public static Color HAZE_COLOR;
   public static Color WALL_COLOR;
   public static Color OBSTACLE_COLOR;
   private static Color CROSSHAIR_COLOR;
-  public static Color CONE_COLOR;
   public static Color ENEMY_COLOR;
   public static Color DUMMY_COLOR;
   private final Properties prop = new Properties();
@@ -57,10 +57,10 @@ public class Config {
     CROSSHAIR_COLOR = this.getColor("crosshair");
     WALL_COLOR = this.getColor("wall");
     OBSTACLE_COLOR = this.getColor("obstacle");
-    CONE_COLOR = this.getColor("cone");
     ENEMY_COLOR = this.getColor("enemy");
     DUMMY_COLOR = this.getColor("dummy");
     EMPTY_BRIGHT_COLOR = this.getColor("empty.bright");
+    HAZE_COLOR = this.getColor("haze");
 
 
   }
@@ -71,8 +71,10 @@ public class Config {
 
   private Color getColor(String keyPart) {
     String key = "color." + keyPart;
-    int[] globalLineColor =  Arrays.stream(this.getProperty(key).split(",")).mapToInt(Integer::parseInt).toArray();
+    int[] globalLineColor = Arrays.stream(this.getProperty(key).split(","))
+        .mapToInt(Integer::parseInt).toArray();
 
-    return new Color(globalLineColor[0], globalLineColor[1], globalLineColor[2], globalLineColor[3]);
+    return new Color(globalLineColor[0], globalLineColor[1], globalLineColor[2],
+        globalLineColor[3]);
   }
 }
