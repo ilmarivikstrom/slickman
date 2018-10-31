@@ -19,6 +19,7 @@ import util.DistanceCalculator;
 public class Field {
 
   public Block[][] fieldBase;
+  private float[][] blockDistances;
   public Character character;
   private List<Line> lines;
   public final List<Polygon> polygons;
@@ -26,17 +27,18 @@ public class Field {
   public final List<Enemy> enemies;
 
   public Field() {
-    this.fieldBase = this.GenerateEmptyField();
+    this.GenerateEmptyField();
+    this.blockDistances = new float[Math.round(Config.HEIGHT)][Math.round(Config.WIDTH)];
     this.character = new Character();
     this.fieldBase[(int)this.character.getCharacterHead().getBlockX()][(int)this.character.getCharacterHead().getBlockY()] = this.character.getCharacterHead();
     this.lines = new ArrayList<>();
     this.polygons = new ArrayList<>();
     this.enemies = new ArrayList<>();
-    SpawnRandomGoal();
-    SpawnRandomEnemies();
+    SpawnGoal();
+    SpawnEnemy();
   }
 
-  public Block[][] GenerateEmptyField() {
+  public void GenerateEmptyField() {
     Block[][] field = new Block[Math.round(Config.HEIGHT)][Math.round(Config.WIDTH)];
     for (int i = 0; i < Config.WIDTH; i++) {
       for (int j = 0; j < Config.HEIGHT; j++) {
@@ -53,11 +55,24 @@ public class Field {
         }
       }
     }
-    return field;
+    this.fieldBase = field;
+  }
+
+  public void UpdateEnemiesAndGoalAndCharacter() {
+    if (this.enemies != null) {
+      for (Enemy enemy : this.enemies) {
+        this.fieldBase[(int)enemy.getEnemyHead().getBlockY()][(int)enemy.getEnemyHead().getBlockX()] = enemy.getEnemyHead();
+      }
+    }
+    if (this.goal != null) {
+      this.fieldBase[(int)this.goal.getBlockY()][(int)this.goal.getBlockX()] = this.goal;
+    }
+    if (this.character != null) {
+      this.fieldBase[(int)this.character.getCharacterHead().getBlockY()][(int)this.character.getCharacterHead().getBlockX()] = this.character.getCharacterHead();
+    }
   }
 
   public float[][] GetBlockDistances() {
-    float[][] blockDistances = new float[Math.round(Config.HEIGHT)][Math.round(Config.WIDTH)];
     for (int j = 0; j < this.fieldBase.length; j++) {
       for (int i = 0; i < this.fieldBase[j].length; i++) {
         blockDistances[j][i] = DistanceCalculator
@@ -67,13 +82,13 @@ public class Field {
     return blockDistances;
   }
 
-  private void SpawnRandomEnemies() {
+  private void SpawnEnemy() {
     Enemy enemy = new Enemy(8.f, 12.f);
     this.enemies.add(enemy);
     this.fieldBase[12][8] = enemy.getEnemyHead();
   }
 
-  private void SpawnRandomGoal() {
+  private void SpawnGoal() {
     this.goal = new Goal(8.f, 8.f);
     this.fieldBase[8][8] = this.goal;
   }

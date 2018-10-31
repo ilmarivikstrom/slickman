@@ -102,7 +102,8 @@ class Game extends BasicGame {
       } else if (keyboardInput == UserKeyboardInput.PAUSE) {
         this.inEditMode = !this.inEditMode;
       } else if (keyboardInput == UserKeyboardInput.KEY_C) {
-        this.field.fieldBase = this.field.GenerateEmptyField();
+        this.field.GenerateEmptyField();
+        this.field.UpdateEnemiesAndGoalAndCharacter();
       } else if (keyboardInput == UserKeyboardInput.KEY_T) {
         try {
           SaveGame.Save(this.field.fieldBase);
@@ -112,6 +113,7 @@ class Game extends BasicGame {
       } else if (keyboardInput == UserKeyboardInput.KEY_L) {
         try {
           this.field.fieldBase = SaveGame.Load();
+          this.field.UpdateEnemiesAndGoalAndCharacter();
         } catch (IOException e) {
           e.printStackTrace();
         }
@@ -166,8 +168,8 @@ class Game extends BasicGame {
 
         List<Line> shadeLines = new ArrayList<>();
         for (Line line : largestAngleLines) {
-          float dx = 80 * (line.getMaxX() - line.getMinX());
-          float dy = 80 * (line.getMaxY() - line.getMinY());
+          float dx = 2 * Config.WIDTH * (line.getMaxX() - line.getMinX());
+          float dy = 2 * Config.HEIGHT * (line.getMaxY() - line.getMinY());
           if (this.field.getCharacter().getCharacterHead().getCenterX() < line.getEnd().x
               && this.field.getCharacter().getCharacterHead().getCenterY() > line.getEnd().y) {
             dx = -dx;
@@ -215,6 +217,7 @@ class Game extends BasicGame {
         }
         if (keyboardInput == UserKeyboardInput.KEY_I) {
           GenerateRandomMap();
+          this.field.UpdateEnemiesAndGoalAndCharacter();
         }
       } else {
         interval = 1.0f / 20.f;
@@ -230,87 +233,34 @@ class Game extends BasicGame {
     g.setBackground(new Color(255, 255, 255, 255));
 
     // Dark background.
-    for (Block[] blockRow : field.fieldBase) {
-      for (Block block : blockRow) {
-        g.setColor(Config.DARKNESS_COLOR);
-        g.fill(block);
-      }
-    }
-
-    Color origColor;
-    Color newColor;
+    DrawDarkBackground(g);
 
     // If the light is on, draw...
     if (this.field.character.isLightIsOn()) {
-      // ... goal
       if (!this.inEditMode) {
-        origColor = this.field.goal.getFillColor();
-        newColor = new Color(origColor.r, origColor.g, origColor.b,
-            origColor.a - (float) 1.75 * origColor.a * (
-                DistanceCalculator.Euclidean(this.field.character.getCharacterHead(), this.field.goal)
-                    / (Config.TILE_SIZE * Config.WIDTH)));
-
-        g.setColor(newColor);
-        g.fill(this.field.goal);
+        // ... goal
+        DrawGoal(g);
 
         // ... enemies
-        for (Enemy enemy : this.field.enemies) {
-          origColor = enemy.getEnemyHead().getFillColor();
-          newColor = new Color(origColor.r, origColor.g, origColor.b,
-              origColor.a - (float) 1.75 * origColor.a * (DistanceCalculator
-                  .Euclidean(this.field.character.getCharacterHead(), enemy.getEnemyHead()) / (
-                  Config.TILE_SIZE * Config.WIDTH)));
-          g.setColor(newColor);
-          g.fill(enemy.getEnemyHead());
-        }
+        DrawEnemies(g);
       }
 
       // ... light
       if (!this.inEditMode) {
-        origColor = Config.EMPTY_BRIGHT_COLOR;
-        float[][] blockDistances = this.field.GetBlockDistances();
-        for (int j = 0; j < blockDistances.length; j++) {
-          for (int i = 0; i < blockDistances[j].length; i++) {
-            if (this.field.fieldBase[j][i].getBlockType() == BlockType.EMPTY) {
-              newColor = new Color(origColor.r, origColor.g, origColor.b,
-                  origColor.a - (float) 1.75 * origColor.a * (blockDistances[j][i] / (Config.TILE_SIZE
-                      * Config.WIDTH)));
-              g.setColor(newColor);
-              g.fill(this.field.fieldBase[j][i]);
-              Color origLineColor = this.field.fieldBase[j][i].getLineColor();
-              Color newLineColor = new Color(origLineColor.r, origLineColor.g, origLineColor.b, origLineColor.a - (float) 1 * origLineColor.a * (blockDistances[j][i] / (Config.TILE_SIZE
-                  * Config.WIDTH)));
-              g.setColor(newLineColor);
-              g.draw(this.field.fieldBase[j][i]);
-            }
-          }
-        }
+        DrawLight(g);
       }
 
-      // ... and visibility polygons.
+      // ... and visibility cones.
       if (!this.inEditMode) {
-        g.setColor(Config.DARKNESS_COLOR);
-        for (Polygon polygon : this.field.polygons) {
-          g.fill(polygon);
-        }
+        DrawVisibilityCones(g);
       }
     }
 
     // Draw character in any case.
-    g.setColor(this.field.character.getCharacterHead().getFillColor());
-    g.fill(this.field.character.getCharacterHead());
-    g.setColor(Config.GLOBAL_LINE_COLOR);
-    g.draw(this.field.character.getCharacterHead());
+    DrawCharacter(g);
 
-    // Draw the field and walls so that
-    for (Block[] blockRow : field.fieldBase) {
-      for (Block block : blockRow) {
-        if (block.getBlockType() == BlockType.OBSTACLE || block.getBlockType() == BlockType.WALL) {
-          g.setColor(block.getFillColor());
-          g.fill(block);
-        }
-      }
-    }
+    // Draw the obstacles and walls.
+    DrawObstaclesAndWalls(g);
 
     // Draw some distance info
     DrawDistanceInfo();
@@ -319,6 +269,84 @@ class Game extends BasicGame {
     if (this.inEditMode) {
       DrawEditModeOverlay(g);
       DrawEditModeInfo();
+    }
+  }
+
+  private void DrawDarkBackground(Graphics g) {
+    for (Block[] blockRow : field.fieldBase) {
+      for (Block block : blockRow) {
+        g.setColor(Config.DARKNESS_COLOR);
+        g.fill(block);
+      }
+    }
+  }
+
+  private void DrawCharacter(Graphics g) {
+    g.setColor(this.field.character.getCharacterHead().getFillColor());
+    g.fill(this.field.character.getCharacterHead());
+    g.setColor(Config.GLOBAL_LINE_COLOR);
+    g.draw(this.field.character.getCharacterHead());
+  }
+
+  private void DrawGoal(Graphics g) {
+    Color origColor = this.field.goal.getFillColor();
+    Color newColor = new Color(origColor.r, origColor.g, origColor.b,
+        origColor.a - (float) 1.75 * origColor.a * (
+            DistanceCalculator.Euclidean(this.field.character.getCharacterHead(), this.field.goal)
+                / (Config.TILE_SIZE * Config.WIDTH)));
+
+    g.setColor(newColor);
+    g.fill(this.field.goal);
+  }
+
+  private void DrawEnemies(Graphics g) {
+    for (Enemy enemy : this.field.enemies) {
+      Color origColor = enemy.getEnemyHead().getFillColor();
+      Color newColor = new Color(origColor.r, origColor.g, origColor.b,
+          origColor.a - (float) 1.75 * origColor.a * (DistanceCalculator
+              .Euclidean(this.field.character.getCharacterHead(), enemy.getEnemyHead()) / (
+              Config.TILE_SIZE * Config.WIDTH)));
+      g.setColor(newColor);
+      g.fill(enemy.getEnemyHead());
+    }
+  }
+
+  private void DrawLight(Graphics g) {
+    Color origColor = Config.EMPTY_BRIGHT_COLOR;
+    float[][] blockDistances = this.field.GetBlockDistances();
+    for (int j = 0; j < blockDistances.length; j++) {
+      for (int i = 0; i < blockDistances[j].length; i++) {
+        if (this.field.fieldBase[j][i].getBlockType() == BlockType.EMPTY) {
+          Color newColor = new Color(origColor.r, origColor.g, origColor.b,
+              origColor.a - (float) 1.75 * origColor.a * (blockDistances[j][i] / (Config.TILE_SIZE
+                  * Config.WIDTH)));
+          g.setColor(newColor);
+          g.fill(this.field.fieldBase[j][i]);
+          Color origLineColor = this.field.fieldBase[j][i].getLineColor();
+          Color newLineColor = new Color(origLineColor.r, origLineColor.g, origLineColor.b, origLineColor.a - (float) 1 * origLineColor.a * (blockDistances[j][i] / (Config.TILE_SIZE
+              * Config.WIDTH)));
+          g.setColor(newLineColor);
+          g.draw(this.field.fieldBase[j][i]);
+        }
+      }
+    }
+  }
+
+  private void DrawVisibilityCones(Graphics g) {
+    g.setColor(Config.DARKNESS_COLOR);
+    for (Polygon polygon : this.field.polygons) {
+      g.fill(polygon);
+    }
+  }
+
+  private void DrawObstaclesAndWalls(Graphics g) {
+    for (Block[] blockRow : field.fieldBase) {
+      for (Block block : blockRow) {
+        if (block.getBlockType() == BlockType.OBSTACLE || block.getBlockType() == BlockType.WALL) {
+          g.setColor(block.getFillColor());
+          g.fill(block);
+        }
+      }
     }
   }
 
@@ -370,19 +398,18 @@ class Game extends BasicGame {
 
   private void GenerateRandomMap() {
     Random random = new Random();
-    Block[][] newField = this.field.GenerateEmptyField();
+    this.field.GenerateEmptyField();
     for (int j = 0; j < this.field.fieldBase.length - 1; j++) {
       for (int i = 0; i < this.field.fieldBase[j].length - 1; i++) {
         if (j % (6 + random.nextInt(3)) == 0) {
-          newField[j][i] = new Obstacle(i, j);
+          this.field.fieldBase[j][i] = new Obstacle(i, j);
         } else if (i % (10 + random.nextInt(4)) == 0) {
-          newField[j][i] = new Obstacle(i, j);
+          this.field.fieldBase[j][i] = new Obstacle(i, j);
         } else {
-          newField[j][i] = new EmptyBlock(i, j);
+          this.field.fieldBase[j][i] = new EmptyBlock(i, j);
         }
       }
     }
-    this.field.fieldBase = newField;
   }
 
   public class MemoryUsage {
