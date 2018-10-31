@@ -35,7 +35,7 @@ public class SaveGame {
     out.close();
   }
 
-  public static Block[][] Load() throws FileNotFoundException, IOException {
+  public static Block[][] Load() throws IOException {
     Block[][] field = new Block[Math.round(Config.HEIGHT)][Math.round(Config.WIDTH)];
     InputStream is = new FileInputStream("savegame.txt");
     BufferedReader buf = new BufferedReader(new InputStreamReader(is));
