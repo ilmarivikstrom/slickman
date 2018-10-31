@@ -13,7 +13,6 @@ import input.InputHandler;
 import input.UserKeyboardInput;
 import input.UserMouseInput;
 import java.awt.Font;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,11 +43,14 @@ class Game extends BasicGame {
   private boolean inEditMode;
   private TrueTypeFont pauseFont;
   private TrueTypeFont distanceFont;
+  private Runtime runtime;
+  private MemoryUsage memoryUsage;
 
   private Game() {
     super("SlickMan!");
     new Config();
-    field = new Field();
+    this.field = new Field();
+    this.memoryUsage = new MemoryUsage();
     this.inEditMode = false;
   }
 
@@ -77,6 +79,8 @@ class Game extends BasicGame {
 
   @Override
   public void update(GameContainer gc, int i) {
+    memoryUsage.Update();
+    System.out.println(memoryUsage.totalMemory + " / " + memoryUsage.maxMemory);
     boolean moveCommandGiven = false;
     UserKeyboardInput keyboardInput = InputHandler.GetUserKeyboardInput(gc);
     UserMouseInput leftMouseInput = InputHandler.GetMouseLeftClickCoordinates(gc);
@@ -228,7 +232,7 @@ class Game extends BasicGame {
     // Dark background.
     for (Block[] blockRow : field.fieldBase) {
       for (Block block : blockRow) {
-        g.setColor(Config.EMPTY_COLOR);
+        g.setColor(Config.DARKNESS_COLOR);
         g.fill(block);
       }
     }
@@ -285,7 +289,7 @@ class Game extends BasicGame {
 
       // ... and visibility polygons.
       if (!this.inEditMode) {
-        g.setColor(Config.EMPTY_COLOR);
+        g.setColor(Config.DARKNESS_COLOR);
         for (Polygon polygon : this.field.polygons) {
           g.fill(polygon);
         }
@@ -379,5 +383,24 @@ class Game extends BasicGame {
       }
     }
     this.field.fieldBase = newField;
+  }
+
+  public class MemoryUsage {
+    Runtime runtime = Runtime.getRuntime();
+    public long usedMemory;
+    public long freeMemory;
+    public long totalMemory;
+    public long maxMemory;
+
+    public MemoryUsage() {
+      Update();
+    }
+    public void Update() {
+      int mb = 1024*1024;
+      this.usedMemory = (runtime.totalMemory() - runtime.freeMemory()) / mb;
+      this.freeMemory = runtime.freeMemory() / mb;
+      this.totalMemory = runtime.totalMemory() / mb;
+      this.maxMemory = runtime.maxMemory() / mb;
+    }
   }
 }

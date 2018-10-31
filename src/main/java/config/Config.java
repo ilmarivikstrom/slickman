@@ -19,7 +19,7 @@ public class Config {
   public static Color EDITMODE_OVERLAY_COLOR;
   public static Color GOAL_COLOR;
   public static Color CHARACTER_COLOR;
-  public static Color EMPTY_COLOR;
+  public static Color DARKNESS_COLOR;
   public static Color EMPTY_BRIGHT_COLOR;
   public static Color HAZE_COLOR;
   public static Color WALL_COLOR;
@@ -31,7 +31,7 @@ public class Config {
 
   public Config() {
     try {
-      String configFile = System.getProperty("user.dir") + "/resources/config.properties";
+      String configFile = "resources/config.properties";
 
       InputStream is = new FileInputStream(configFile);
       prop.load(is);
@@ -52,7 +52,7 @@ public class Config {
     EDITMODE_OVERLAY_COLOR = this.getColor("editmode.overlay");
     GOAL_COLOR = this.getColor("goal");
     CHARACTER_COLOR = this.getColor("character");
-    EMPTY_COLOR = this.getColor("empty");
+    DARKNESS_COLOR = this.getColor("darkness");
     CROSSHAIR_COLOR = this.getColor("crosshair");
     WALL_COLOR = this.getColor("wall");
     OBSTACLE_COLOR = this.getColor("obstacle");
@@ -60,8 +60,6 @@ public class Config {
     DUMMY_COLOR = this.getColor("dummy");
     EMPTY_BRIGHT_COLOR = this.getColor("empty.bright");
     HAZE_COLOR = this.getColor("haze");
-
-
   }
 
   private String getProperty(String key) {

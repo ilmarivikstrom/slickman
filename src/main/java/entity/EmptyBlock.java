@@ -10,7 +10,7 @@ public class EmptyBlock extends Block {
         x,
         y,
         BlockType.EMPTY,
-        Config.EMPTY_COLOR,
+        Config.DARKNESS_COLOR,
         false
     );
   }
