@@ -42,7 +42,7 @@ class Game extends BasicGame {
   private final Field field;
   private boolean inEditMode;
   private TrueTypeFont pauseFont;
-  private TrueTypeFont distanceFont;
+  private TrueTypeFont infoFont;
   private Runtime runtime;
   private MemoryUsage memoryUsage;
 
@@ -71,7 +71,7 @@ class Game extends BasicGame {
     Font font16 = new Font("Verdana", Font.BOLD, 10);
     Font font12 = new Font("Verdana", Font.BOLD, 8);
     this.pauseFont = new TrueTypeFont(font16, true);
-    this.distanceFont = new TrueTypeFont(font12, true);
+    this.infoFont = new TrueTypeFont(font12, true);
     updateTime = System.nanoTime();
     time = 0;
     interval = 1.0f / 20.0f;
@@ -80,7 +80,6 @@ class Game extends BasicGame {
   @Override
   public void update(GameContainer gc, int i) {
     memoryUsage.Update();
-    System.out.println(memoryUsage.totalMemory + " / " + memoryUsage.maxMemory);
     boolean moveCommandGiven = false;
     UserKeyboardInput keyboardInput = InputHandler.GetUserKeyboardInput(gc);
     UserMouseInput leftMouseInput = InputHandler.GetMouseLeftClickCoordinates(gc);
@@ -238,14 +237,14 @@ class Game extends BasicGame {
     // If the light is on, draw...
     if (this.field.character.isLightIsOn()) {
       if (!this.inEditMode) {
-        // ... goal
+        // ... goal ...
         DrawGoal(g);
 
-        // ... enemies
+        // ... enemies ...
         DrawEnemies(g);
       }
 
-      // ... light
+      // ... light ...
       if (!this.inEditMode) {
         DrawLight(g);
       }
@@ -264,6 +263,9 @@ class Game extends BasicGame {
 
     // Draw some distance info
     DrawDistanceInfo();
+
+    // Draw some memory info.
+    DrawMemoryInfo();
 
     // Draw some info if in Edit Mode
     if (this.inEditMode) {
@@ -364,6 +366,11 @@ class Game extends BasicGame {
     g.fillRect(0.f, 0.f, Config.WIDTH * Config.TILE_SIZE, Config.HEIGHT * Config.TILE_SIZE);
   }
 
+  private void DrawMemoryInfo() {
+    String memoryString = "Memory: " + memoryUsage.totalMemory + " / " + memoryUsage.maxMemory;
+    infoFont.drawString(Config.WIDTH * Config.TILE_SIZE - 100, Config.HEIGHT * Config.TILE_SIZE - 20, memoryString);
+  }
+
   private void DrawDistanceInfo() {
     String manhattan = "Manh: " + DistanceCalculator
         .ManhattanAsString(this.field.character.getCharacterHead().getBlockX(),
@@ -373,11 +380,11 @@ class Game extends BasicGame {
         .EuclideanAsString(this.field.character.getCharacterHead().getBlockX(),
             this.field.character.getCharacterHead().getBlockY(), this.field.goal.getBlockX(),
             this.field.goal.getBlockY());
-    distanceFont
-        .drawString(Config.WIDTH * Config.TILE_SIZE - 50, Config.HEIGHT * Config.TILE_SIZE - 60,
+    infoFont
+        .drawString(Config.WIDTH * Config.TILE_SIZE - 100, Config.HEIGHT * Config.TILE_SIZE - 60,
             manhattan);
-    distanceFont
-        .drawString(Config.WIDTH * Config.TILE_SIZE - 50, Config.HEIGHT * Config.TILE_SIZE - 40,
+    infoFont
+        .drawString(Config.WIDTH * Config.TILE_SIZE - 100, Config.HEIGHT * Config.TILE_SIZE - 40,
             euclidean);
   }
 
