@@ -31,8 +31,7 @@ public class Config {
 
   public Config() {
     try {
-      System.out.println(System.getProperty("user.dir"));
-      String configFile = System.getProperty("user.dir") + "/config.properties";
+      String configFile = System.getProperty("user.dir") + "/resources/config.properties";
 
       InputStream is = new FileInputStream(configFile);
       prop.load(is);

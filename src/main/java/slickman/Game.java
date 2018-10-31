@@ -53,10 +53,6 @@ class Game extends BasicGame {
   }
 
   public static void main(String[] args) {
-    String OS = System.getProperty("os.name").toLowerCase();
-
-    System.setProperty("org.lwjgl.librarypath",
-        new File("native/" + OS).getAbsolutePath());
     try {
       AppGameContainer appgc;
       appgc = new AppGameContainer(new Game());
