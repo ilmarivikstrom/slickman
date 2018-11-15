@@ -1,6 +1,6 @@
 # slickman
 
-A simple (and naive) 2D lighting project using Slick2D library.
+A simple (and naive) implementation of 2D lighting using Slick2D library.
 Inspired by an article about ray casting from Red Blob Games: https://www.redblobgames.com/articles/visibility/
 
 ![](slickman.gif)
